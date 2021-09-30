@@ -1,0 +1,4 @@
+You are allowed to modify and redistribute this product as long as proper credit is given.
+You can do this via a .txt file in your blur game folder or a mention in the game itself.
+
+This game uses Bartos' Blur Essentials which are available here: https://github.com/bar-tos/Blur-Essentials
