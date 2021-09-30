@@ -1,3 +1,11 @@
+--[[
+	BLUR ESSENTIALS LICENSE
+	Blur Essentials is an open source project made by Bartos, it is available here: https://github.com/bar-tos/Blur-Essentials
+
+	You are allowed to modify and redistribute this product as long as you include this license in your file.
+	You are not allowed to claim this work as your own.
+--]]
+
 function es_type(object)
 	if type(object) ~= "userdata" then return type(object) end 
 	name = tostring(object)

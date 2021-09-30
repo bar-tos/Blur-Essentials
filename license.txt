@@ -1,4 +1,5 @@
-You are allowed to modify and redistribute this product as long as proper credit is given.
-You can do this via a .txt file in your blur game folder or a mention in the game itself.
+BLUR ESSENTIALS LICENSE
+Blur Essentials is an open source project made by Bartos, it is available here: https://github.com/bar-tos/Blur-Essentials
 
-This game uses Bartos' Blur Essentials which are available here: https://github.com/bar-tos/Blur-Essentials
+You are allowed to modify and redistribute this product as long as you include this license in your file.
+You are not allowed to claim this work as your own.
