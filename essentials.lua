@@ -38,7 +38,7 @@ function es_makeGUI(parent, settings)
 	for k,v in pairs(settings) do
 		if k == "Font" then -- Fonts need to be set with a method
 			newGUI:setFont(settings["Font"][1], settings["Font"][2])
-		elseif not k == "Type" or k == "Visible" then
+		elseif not (k == "Type" or k == "Visible") then
 			newGUI[k] = v
 		end
 	end
