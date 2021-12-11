@@ -9,7 +9,6 @@
 function es_type(object)
 	if type(object) ~= "userdata" then return type(object) end 
 	name = tostring(object)
-	print(name)
 	a,b = string.find(name, "Vector")
 	if a and b then
 		return string.lower(string.sub(name, a,b))
@@ -29,17 +28,21 @@ function es_makeGUI(parent, settings)
 	else -- GUIObject
 		if parent and parent["addObject"] then
 			newGUI = gui.newObject(type)
-			parent:addObject(newGUI)
+			if (settings["shown"] == nil or settings["shown"] == true) then
+				parent:addObject(newGUI)
+			end
 		else
 			log("ESSENTIALS", "Couldn't find GUI of name: " .. parent, LOG_ERROR)
 		return end
 	end
 	for k,v in pairs(settings) do
-		if not (k == "Type" or k == "Visible") then
+		if k == "Font" then -- Fonts need to be set with a method
+			newGUI:setFont(settings["Font"][1], settings["Font"][2])
+		elseif not (k == "Type" or k == "Visible") then
 			newGUI[k] = v
 		end
 	end
-	if not settings["Hidden"] then
+	if settings["enabled"] ~= nil and settings["enabled"] == true then
 		gui.register(newGUI)
 	end
 	return newGUI
@@ -60,7 +63,7 @@ es_EASING_INBACK = 9
 es_EASING_ELASTIC = 10
 local tweenStyles = {
 	function(a,b,t) return a * (1-t) + b * t end,
-	function(a, b, t) return es_lerp(a, b, t * t) end,
+	function(a,b,t) return es_lerp(a, b, t * t) end,
 	function(a,b,t) return es_lerp(a,b,(1-math.cos(t*math.pi))/2) end,
 	function(a,b,t) return es_lerp(a,b,t*t*(3-t*2)) end,
 	function(a,b,t) return es_lerp(a,b,t^4*(35+t*(-84+t*(70+t*-20)))) end,
@@ -79,32 +82,89 @@ local tweenStyles = {
 	end
 }
 
-function es_tween(object, property, startPos, endPos, time, tweeningStyle, smoothness)
+local ongoingTweens = {}
+local tweenIDCounter = 0
+
+function es_tween(object, property, startPos, endPos, time, tweeningStyle, smoothness, completionCallback, startCallback)
 	local tweeningStyle = tweeningStyle or es_EASING_LINEAR
 	local smoothness = smoothness or 0.001
 	local style = nil
 	for k,v in pairs(tweenStyles) do
 		if tweeningStyle == k then style = v end
 	end
+	
 	if style then
+		local tween =
+		{
+			ID = tweenIDCounter,
+			Object = object,
+			TweeningStyle = tweeningStyle,
+			Smoothness = smoothness,
+			Progress = 0,
+			Property = property,
+			StartPos = startPos,
+			EndPos = endPos,
+			CompletionCallback = completionCallback,
+			StartCallback = startCallback
+		}
+		
+		-- Used as a way to return the tween table without quitting the function
+		if startCallback then
+			startCallback(tween)
+		end
+		
+		ongoingTweens[tweenIDCounter] = tween
+		tweenIDCounter = tweenIDCounter + 1
+	
 		if property == "Size" then -- Tile size is bottom left corner aligned, account for that with offset
+			
 			for i=0,1,smoothness do
 				delay(i*time, function()
+					if ongoingTweens[tween["ID"]] == nil then return end
+				
+					tween["Progress"] = tween["Progress"] + i
+				
 					object[property] = Vector(style(startPos.X, endPos.X, i), style(startPos.Y, endPos.Y, i))
 					object.Position = Vector(startPos.X-style(startPos.X, endPos.X, i)/2, startPos.Y-style(startPos.Y, endPos.Y, i)/2)
+				
+					-- Last step of the tween
+					if i >= 1 - smoothness then
+						ongoingTweens[tween["ID"]] = nil 
+						if completionCallback then completionCallback() end
+					end
 				end)
 			end
 		else
-			if es_type(object[property]) == "vector" then
+			if es_type(object[property]) == "Vector" then
 				for i=0,1,smoothness do
 					delay(i*time, function()
+						if ongoingTweens[tween["ID"]] == nil then return end
+					
+						tween["Progress"] = tween["Progress"] + i
+						
 						object[property] = Vector(style(startPos.X, endPos.X, i), style(startPos.Y, endPos.Y, i))
+					
+						-- Last step of the tween
+						if i >= 1 - smoothness then
+							ongoingTweens[tween["ID"]] = nil 
+							if completionCallback then completionCallback() end
+						end
 					end)
 				end
 			else
 				for i=0,1,smoothness do
 					delay(i*time, function()
+						if ongoingTweens[tween["ID"]] == nil then return end
+					
+						tween["Progress"] = tween["Progress"] + i
+						
 						object[property] = style(startPos, endPos, i)
+						
+						-- Last step of the tween
+						if i >= 1 - smoothness then
+							ongoingTweens[tween["ID"]] = nil 
+							if completionCallback then completionCallback() end
+						end
 					end)
 				end
 			end
@@ -112,4 +172,15 @@ function es_tween(object, property, startPos, endPos, time, tweeningStyle, smoot
 	else
 		log("ESSENTIALS", "Invalid tweening style: " .. tweeningStyle, LOG_ERROR)
 	end
+end
+
+function es_cancelTween(id, revert)
+	if ongoingTweens[id] == nil then return end
+
+	-- Revert to the starting value if needed
+	if revert then
+		ongoingTweens[id].Object[ongoingTweens[id].Property] = ongoingTweens[id].StartPos
+	end
+
+	ongoingTweens[id] = nil
 end
