@@ -1,22 +1,22 @@
-include("essentials.lua")
+include("essentials/essentials.lua")
+include("player.lua")
 
-exampleTile = tile.new(Vector(0,0), texture.load("crate.png"))
-
+exampleTile = Tile.new(Vector(0,0), Texture.load("crate.png"))
 
 exampleGUI = es_makeGUI("root", {
 	["Type"] = "GUI",
 	["Position"] = Vector(100, 100),
-	["Size"] = Vector(300,200)
+	["Size"] = Vector(300,200),
+	["Enabled"] = true
 })
 
-exampleButton = es_makeGUI(exampleGUI, {
-	["Type"] = "Button",
+exampleText = es_makeGUI(exampleGUI, {
+	["Type"] = "Label",
 	["Position"] = Vector(100, 75),
-	["Size"] = Vector(100,75)
+	["Size"] = Vector(100,75),
+	["Text"] = "0"
 })
 
-event.link("mouseClick", "mouseClick", function(key, state)
-	if state ~= BUTTON_PRESS then return end
-	es_tween(exampleTile, "Position", Vector(0,0), Vector(3, 3), 3)
-	es_tween(exampleGUI, "Size", Vector(100,75), Vector(200,150), 3, es_EASING_BOUNCE, 0.02)
+event.link("render", "render", function()
+	exampleText.Text = es_distance(exampleTile.Position, player.Position)
 end)
