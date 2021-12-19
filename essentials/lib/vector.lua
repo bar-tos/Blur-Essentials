@@ -1,3 +1,8 @@
+-- creates a unique number from a vector
+function es_vecToNum(vector)
+	return (2 ^ vector.X) * (3 ^ vector.Y)
+end
+
 function es_distance(v1, v2)
 	-- calculate the triangle's legs
 	local x1, x2 = v1.X, v2.X

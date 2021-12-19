@@ -75,7 +75,7 @@ function es_tween(object, property, startPos, endPos, time, tweeningStyle, smoot
 					tween["Progress"] = tween["Progress"] + i
 				
 					object[property] = Vector(style(startPos.X, endPos.X, i), style(startPos.Y, endPos.Y, i))
-					object.Position = Vector(startPos.X-style(startPos.X, endPos.X, i)/2, startPos.Y-style(startPos.Y, endPos.Y, i)/2)
+					object.Position = Vector(startPos.X-style(startPos.X, endPos.X, i)/2, startPos.Y-style(startPos.Y, endPos.Y, i)/2, object.Position.Z)
 				
 					-- Last step of the tween
 					if i >= 1 - smoothness then
@@ -92,7 +92,7 @@ function es_tween(object, property, startPos, endPos, time, tweeningStyle, smoot
 					
 						tween["Progress"] = tween["Progress"] + i
 						
-						object[property] = Vector(style(startPos.X, endPos.X, i), style(startPos.Y, endPos.Y, i))
+						object[property] = Vector(style(startPos.X, endPos.X, i), style(startPos.Y, endPos.Y, i), object[property].Z)
 					
 						-- Last step of the tween
 						if i >= 1 - smoothness then
