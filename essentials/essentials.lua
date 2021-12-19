@@ -7,7 +7,7 @@
 --]]
 
 for _,v in pairs(
-	{"gui", "tween", "vector"}) 
+	{"gui", "tween", "vector", "math", "files"}) 
 do
 	include("essentials/lib/" .. v .. ".lua")
 end
