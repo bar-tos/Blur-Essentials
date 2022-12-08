@@ -16,8 +16,8 @@ end
 function es_getFileName(path)
 	local reversed = string.reverse(path)
 	local lastPeriodIndex = string.len(reversed) - string.find(reversed, "%.")
-	
-	local backSlashIndex = string.find(reversed, [[\]])
+
+	local backSlashIndex = string.find(reversed, [[/]])
 	
 	-- only a file name with no directories was given
 	if (backSlashIndex == nil) then backSlashIndex = string.len(reversed) + 2 end
@@ -30,7 +30,7 @@ end
 
 -- checks if a given path is contained in a folder / directory
 function es_isInDirectory(path, dir)
-	return string.find(path, dir..[[\]]) ~= nil
+	return string.find(path, dir..[[/]]) ~= nil
 end
 
 -- checks if a given path has the BLF file extension
@@ -44,6 +44,11 @@ end
 
 -- checks if a given path exists as a BLF save
 function es_isExistingSave(path)
+	-- add the saves directory ourselves
+	if (string.find(path, "/saves") == nil) then
+		path = "./saves"..[[/]]..path
+	end
+
 	local saves = BLF.findSaves()
 
 	for i = 1, #saves, 1 do

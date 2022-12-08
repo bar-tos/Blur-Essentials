@@ -5,9 +5,9 @@ function es_roundToPlace(num, numDecimalPlaces)
 end
 
 -- returns values EXCLUDED from the clamp zone, going to the nearest minimum if it is inside the clamp zone
--- reverseClamp(0.5, -1, 2) = 2
--- reverseClamp(-1, 5, 10) = -1
--- reverseClamp(6, 10, 5) = 6
+-- es_reverseClamp(0.5, -1, 2) = 2
+-- es_reverseClamp(-1, 5, 10) = -1
+-- es_reverseClamp(6, 10, 5) = 6
 function es_reverseClamp(value, lowerThan, higherThan)
 	lowerThan = math.min(lowerThan, higherThan)
 	
