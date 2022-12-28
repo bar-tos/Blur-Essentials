@@ -6,7 +6,8 @@ function es_makeGUI(parent, settings)
 	else -- GUIObject
 		if parent and parent["addObject"] then
 			newGUI = GUI.newObject(type)
-			if (settings["Shown"] == nil or settings["Shown"] == true) then
+			if (settings["shown"] == nil or settings["shown"] == true) then
+				settings["shown"] = true
 				parent:addObject(newGUI)
 			end
 		else
@@ -15,12 +16,12 @@ function es_makeGUI(parent, settings)
 	end
 	for k,v in pairs(settings) do
 		if k == "Font" then -- Fonts need to be set with a method
-			newGUI:setFont(settings["Font"][1], settings["Font"][2])
+			newGUI:setFont(Font.load(settings["Font"][1], settings["Font"][2]))
 		elseif not (k == "Type" or k == "Visible") then
 			newGUI[k] = v
 		end
 	end
-	if settings["Enabled"] ~= nil and settings["Enabled"] == true then
+	if settings["enabled"] ~= nil and settings["enabled"] == true then
 		GUI.register(newGUI)
 	end
 	return newGUI

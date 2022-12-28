@@ -1,4 +1,17 @@
 es_lerp = function(a,b,t) return a * (1-t) + b * t end
+-- step function without the slowing that lerp has
+es_step = function(a,b,t) 
+	local val = nil 
+	if (a < b) then val = a + t
+	elseif (a > b) then val = a - t
+	else val = a end
+	
+	if a < b and val > b then return b end
+	if a < b and val < a then return a end
+	if a > b and val < b then return b end
+	if a > b and val > a then return a end
+	return val
+end
 
 -- ENUMS
 es_EASING_LINEAR = 1
@@ -17,7 +30,7 @@ local tweenStyles = {
 	function(a,b,t) return es_lerp(a,b,(1-math.cos(t*math.pi))/2) end,
 	function(a,b,t) return es_lerp(a,b,t*t*(3-t*2)) end,
 	function(a,b,t) return es_lerp(a,b,t^4*(35+t*(-84+t*(70+t*-20)))) end,
-	function(a,b,t) return es_inoutfast(a,b,(1-math.exp(-8*t))/0.9996645373720975) end,
+	function(a,b,t) return es_lerp(a,b,(1-math.exp(-8*t))/0.9996645373720975) end,
 	function(a,b,t)
 		t = (1-t*0.999999999)*0.5271666475893665
 		return es_lerp(a,b,1-math.abs(math.cos(math.pi/t))*t^2*3.79559296602621)
@@ -36,6 +49,8 @@ local ongoingTweens = {}
 local tweenIDCounter = 0
 
 function es_tween(object, property, startPos, endPos, time, tweeningStyle, smoothness, completionCallback, startCallback)
+	if (object == nil) then log("Blur Essentials:es_tween", "object to tween is nil - not starting tween", LOG_ERROR) return end
+	
 	local tweeningStyle = tweeningStyle or es_EASING_LINEAR
 	local smoothness = smoothness or 0.001
 	local style = nil
@@ -53,6 +68,7 @@ function es_tween(object, property, startPos, endPos, time, tweeningStyle, smoot
 			Progress = 0,
 			Property = property,
 			StartPos = startPos,
+			TileStartPos = Vector(object.Position.X, object.Position.Y, object.Position.Z),
 			EndPos = endPos,
 			CompletionCallback = completionCallback,
 			StartCallback = startCallback
@@ -70,17 +86,17 @@ function es_tween(object, property, startPos, endPos, time, tweeningStyle, smoot
 			
 			for i=0,1,smoothness do
 				delay(i*time, function()
-					if ongoingTweens[tween["ID"]] == nil then return end
+					if ongoingTweens[tween["ID"]] == nil or object == nil then return end
 				
 					tween["Progress"] = tween["Progress"] + i
 				
 					object[property] = Vector(style(startPos.X, endPos.X, i), style(startPos.Y, endPos.Y, i))
-					object.Position = Vector(startPos.X-style(startPos.X, endPos.X, i)/2, startPos.Y-style(startPos.Y, endPos.Y, i)/2)
+					--object.Position = Vector(tween.TileStartPos.X-style(startPos.X, endPos.X, i)/2, tween.TileStartPos.Y-style(startPos.Y, endPos.Y, i)/2, tween.TileStartPos.Z)
 				
 					-- Last step of the tween
 					if i >= 1 - smoothness then
 						ongoingTweens[tween["ID"]] = nil 
-						if completionCallback then completionCallback() end
+						if completionCallback then completionCallback(tween) end
 					end
 				end)
 			end
@@ -88,23 +104,23 @@ function es_tween(object, property, startPos, endPos, time, tweeningStyle, smoot
 			if es_type(object[property]) == "Vector" then
 				for i=0,1,smoothness do
 					delay(i*time, function()
-						if ongoingTweens[tween["ID"]] == nil then return end
+						if ongoingTweens[tween["ID"]] == nil or object == nil then return end
 					
 						tween["Progress"] = tween["Progress"] + i
 						
-						object[property] = Vector(style(startPos.X, endPos.X, i), style(startPos.Y, endPos.Y, i))
+						object[property] = Vector(style(startPos.X, endPos.X, i), style(startPos.Y, endPos.Y, i), object[property].Z)
 					
 						-- Last step of the tween
 						if i >= 1 - smoothness then
 							ongoingTweens[tween["ID"]] = nil 
-							if completionCallback then completionCallback() end
+							if completionCallback then completionCallback(tween) end
 						end
 					end)
 				end
 			else
 				for i=0,1,smoothness do
 					delay(i*time, function()
-						if ongoingTweens[tween["ID"]] == nil then return end
+						if ongoingTweens[tween["ID"]] == nil or object == nil then return end
 					
 						tween["Progress"] = tween["Progress"] + i
 						
@@ -113,7 +129,7 @@ function es_tween(object, property, startPos, endPos, time, tweeningStyle, smoot
 						-- Last step of the tween
 						if i >= 1 - smoothness then
 							ongoingTweens[tween["ID"]] = nil 
-							if completionCallback then completionCallback() end
+							if completionCallback then completionCallback(tween) end
 						end
 					end)
 				end
