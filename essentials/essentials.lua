@@ -9,7 +9,7 @@
 for _,v in pairs(
 	{"gui", "tween", "vector", "math", "files", "tables"}) 
 do
-	include("libs/essentials/lib/" .. v .. ".lua")
+	include("essentials/lib/" .. v .. ".lua")
 end
 
 function es_type(object)
